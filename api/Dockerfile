@@ -1,13 +1,17 @@
 FROM node:8
 
-ADD . /code
-WORKDIR /code
+WORKDIR /usr/src/app
 
-ADD package.json .
-
-RUN npm install forever -g
+# Copy package files first for better caching
+COPY package*.json ./
 RUN npm install
 
+# Copy source code
 COPY . .
 
-CMD ["forever", "index.js"]
+# Create a startup script
+RUN echo '#!/bin/bash' > start.sh && \
+    echo 'node src/index.js' >> start.sh && \
+    chmod +x start.sh
+
+CMD ["./start.sh"]

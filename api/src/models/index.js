@@ -1,25 +1,33 @@
 import { Client } from 'pg'
 const connectionString = 'postgres://postgres:password@postgres:5432/chat'
 
-const client = new Client({
-  connectionString: connectionString,
-})
+const initClient = async () => {
+  const client = new Client({
+    connectionString: connectionString,
+  })
 
-client.connect()
+  try {
+    await client.connect()
+    console.log('Database connected successfully')
+    
+    const table = `
+      CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-const table = `
-  CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+      CREATE TABLE IF NOT EXISTS messages(
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        message TEXT,
+        sender INTEGER,
+        createdAt BIGSERIAL
+      )
+    `
 
-  CREATE TABLE messages(id UUID PRIMARY KEY DEFAULT gen_random_uuid(), message TEXT, sender INTEGER, createdAt BIGSERIAL)
-`
-
-const messagesQuery = client.query(table, async (err, res) => {
-  if (err) {
-    throw err
+    await client.query(table)
+    console.log('Messages table created successfully')
+    return client
+  } catch (error) {
+    console.error('Database initialization error:', error)
+    throw error
   }
-  console.log('\n')
-  console.log('Messages Table Created.')
-  await client.end()
-})
+}
 
-export default client
+export default initClient

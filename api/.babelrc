@@ -1,4 +1,14 @@
 {
-  "presets": ["babel-preset-env"],
-  "plugins": ["transform-object-rest-spread"]  
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "8"
+      }
+    }]
+  ],
+  "plugins": [
+    "transform-object-rest-spread",
+    "transform-es2015-modules-commonjs",
+    "transform-runtime"
+  ]
 }
